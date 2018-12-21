@@ -10,7 +10,11 @@ TODO
 
 ## How to use
 
-TODO
+Download data set from here: https://tubcloud.tu-berlin.de/s/ZtfgnxMCZ5cjJf8
+
+Place it under **src/main/resources**
+
+TODO more
 
 
 ## Built with

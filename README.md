@@ -11,7 +11,8 @@ TODO
 ## How to use
 
 Download data set from here: https://tubcloud.tu-berlin.de/s/FyFKLkAMWRJSGYs
-Place it under *src/main/resources*
+
+Place it under **src/main/resources**
 
 TODO more
 

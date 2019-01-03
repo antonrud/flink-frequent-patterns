@@ -6,13 +6,17 @@ import org.apache.flink.api.java.tuple.Tuple3;
 
 public class BatchJob {
 
+
+    // Use 'online_retail.csv' file in final version
+    private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
+
     public static void main(String[] args) throws Exception {
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
         // Total quantity of items sold per StockCode
         DataSet<Tuple3<String, String, Integer>> itemsQuantity = env
-                .readCsvFile("./src/main/resources/online_retail.csv")
+                .readCsvFile(CSV_FILE)
                 .fieldDelimiter(",")
                 // include fields: StockCode, Description, Quantity
                 .includeFields("01110000")

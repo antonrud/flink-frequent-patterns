@@ -1,0 +1,4 @@
+# To track huge resources with Git is bad for ya man!
+*
+# This should stay
+!.gitignore

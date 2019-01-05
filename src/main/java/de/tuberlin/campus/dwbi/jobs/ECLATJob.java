@@ -1,14 +1,16 @@
-package de.tuberlin.campus;
+package de.tuberlin.campus.dwbi.jobs;
 
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple3;
 
-public class BatchJob {
+public class ECLATJob {
 
 
     // Use 'online_retail.csv' file in final version
     private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
+
+    private final static double SUPPORT_THRESHOLD = 0.5;
 
     public static void main(String[] args) throws Exception {
 

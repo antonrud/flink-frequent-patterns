@@ -89,7 +89,7 @@
               </filters>
               <transformers>
                 <transformer>
-                  <mainClass>de.tuberlin.campus.BatchJob</mainClass>
+                  <mainClass>de.tuberlin.campus.dwbi.jobs.ECLATJob</mainClass>
                 </transformer>
               </transformers>
             </configuration>

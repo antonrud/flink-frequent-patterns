@@ -1,6 +1,7 @@
 package de.tuberlin.campus.dwbi.jobs;
 
 import de.tuberlin.campus.dwbi.functions.ProductIdMapper;
+import de.tuberlin.campus.dwbi.functions.SupportFilter;
 import de.tuberlin.campus.dwbi.functions.TransactionsProductsReducer;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -11,15 +12,16 @@ import java.util.SortedSet;
 public class ECLATJob {
 
     //private final static String CSV_FILE = "./src/main/resources/online_retail.csv";
+    //private final static double MIN_SUPPORT = 100;
     private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
-    //private final static String CSV_FILE = "./src/main/resources/test.csv";
-
-    private final static double SUPPORT_THRESHOLD = 0.5;
+    public final static double MIN_SUPPORT = 2;
 
     public static void main(String[] args) throws Exception {
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
+        // Extract 'InvoiceNo' and 'StockCode' from CSV data
+        // and map it to: <(String) StockCode -> (SortedSet) [InvoiceNo, InvoiceNo, ...]>
         DataSet<Tuple2<String, SortedSet<String>>> productsTransactions = env
                 .readCsvFile(CSV_FILE)
                 .fieldDelimiter(",")
@@ -29,11 +31,14 @@ public class ECLATJob {
                 .groupBy(1)
                 .reduceGroup(new TransactionsProductsReducer());
 
+        // Map product identifier (String) to an id (int) for better performance
+        // Note: setParallelism(1) is necessary due to incremental product id!
         DataSet<Tuple2<Integer, SortedSet<String>>> idsTransactions = productsTransactions
                 .map(new ProductIdMapper())
                 .setParallelism(1);
 
-        idsTransactions.print();
+
+        idsTransactions.filter(new SupportFilter<>()).print();
 
         /* Execute program with sink to file
         itemsQuantity.sortPartition(2, Order.DESCENDING)

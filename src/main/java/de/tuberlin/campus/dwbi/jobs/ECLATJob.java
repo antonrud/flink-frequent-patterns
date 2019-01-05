@@ -1,14 +1,19 @@
 package de.tuberlin.campus.dwbi.jobs;
 
+import de.tuberlin.campus.dwbi.functions.TransactionsProductsReducer;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple2;
+
+import java.util.List;
+import java.util.Set;
 
 public class ECLATJob {
 
 
     // Use 'online_retail.csv' file in final version
-    private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
+    //private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
+    private final static String CSV_FILE = "./src/main/resources/test.csv";
 
     private final static double SUPPORT_THRESHOLD = 0.5;
 
@@ -16,21 +21,15 @@ public class ECLATJob {
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
 
-        // Total quantity of items sold per StockCode
-        DataSet<Tuple3<String, String, Integer>> itemsQuantity = env
+        DataSet<Tuple2<String, Set<Integer>>> productsTransactions = env
                 .readCsvFile(CSV_FILE)
                 .fieldDelimiter(",")
-                // include fields: StockCode, Description, Quantity
-                .includeFields("01110000")
+                .includeFields("11000000")
                 .ignoreFirstLine()
-                .types(String.class, String.class, Integer.class)
-                // group by field: StockCode
-                .groupBy(0)
-                // summ by Quantity
-                .sum(2);
+                .types(Integer.class, String.class)
+                .groupBy(1)
+                .reduceGroup(new TransactionsProductsReducer());
 
-        // Print the result
-        itemsQuantity.print();
 
         /* Execute program with sink to file
         itemsQuantity.sortPartition(2, Order.DESCENDING)

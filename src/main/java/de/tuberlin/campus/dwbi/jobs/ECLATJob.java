@@ -1,5 +1,6 @@
 package de.tuberlin.campus.dwbi.jobs;
 
+import de.tuberlin.campus.dwbi.functions.IntersectionMapper;
 import de.tuberlin.campus.dwbi.functions.ProductIdMapper;
 import de.tuberlin.campus.dwbi.functions.SupportFilter;
 import de.tuberlin.campus.dwbi.functions.TransactionsProductsReducer;
@@ -14,7 +15,7 @@ public class ECLATJob {
     //private final static String CSV_FILE = "./src/main/resources/online_retail.csv";
     //private final static double MIN_SUPPORT = 100;
     private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
-    public final static double MIN_SUPPORT = 2;
+    public final static double MIN_SUPPORT = 1;
 
     public static void main(String[] args) throws Exception {
 
@@ -37,8 +38,16 @@ public class ECLATJob {
                 .map(new ProductIdMapper())
                 .setParallelism(1);
 
+        DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> lol = idsTransactions
+                .flatMap(new IntersectionMapper())
+                .withBroadcastSet(idsTransactions, "transactions")
+                .setParallelism(1);
+
 
         idsTransactions.filter(new SupportFilter<>()).print();
+        System.out.println();
+        lol.filter(new SupportFilter<>()).print();
+
 
         /* Execute program with sink to file
         itemsQuantity.sortPartition(2, Order.DESCENDING)

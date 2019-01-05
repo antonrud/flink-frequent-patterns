@@ -4,20 +4,27 @@ import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-public class TransactionsProductsReducer implements GroupReduceFunction<Tuple2<Integer, String>, Tuple2<String, Set<Integer>>> {
-
-    private Set<Integer> transactions;
+public class TransactionsProductsReducer implements GroupReduceFunction<Tuple2<String, String>, Tuple2<String, SortedSet<String>>> {
 
     @Override
-    public void reduce(Iterable<Tuple2<Integer, String>> positions, Collector<Tuple2<String, Set<Integer>>> collector) throws Exception {
+    public void reduce(Iterable<Tuple2<String, String>> positions, Collector<Tuple2<String, SortedSet<String>>> collector) throws Exception {
 
-        transactions = new HashSet<>();
+        Iterator<Tuple2<String, String>> tuples = positions.iterator();
+        Tuple2<String, String> tuple = tuples.next();
 
-        positions.forEach(p -> transactions.add(p.f0));
+        String product = tuple.f1;
 
-        collector.collect(new Tuple2<>(positions.iterator().next().f1, transactions));
+        SortedSet<String> transactions = new TreeSet<>();
+        transactions.add(tuple.f0);
+        while (tuples.hasNext()) {
+            tuple = tuples.next();
+            transactions.add(tuple.f0);
+        }
+
+        collector.collect(new Tuple2<>(product, transactions));
     }
 }

@@ -7,7 +7,7 @@ import de.tuberlin.campus.dwbi.functions.filters.SupportFilter;
 import de.tuberlin.campus.dwbi.functions.keyselectors.ItemSetKeySelector;
 import de.tuberlin.campus.dwbi.functions.mappers.CountSupportMapper;
 import de.tuberlin.campus.dwbi.functions.mappers.ProductIdMapper;
-import de.tuberlin.campus.dwbi.functions.reducers.TransactionsProductsReducer;
+import de.tuberlin.campus.dwbi.functions.reducers.ProductTransactionsReducer;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -51,7 +51,7 @@ public class ECLATJob {
                 .ignoreFirstLine()
                 .types(String.class, String.class)
                 .groupBy(1)
-                .reduceGroup(new TransactionsProductsReducer());
+                .reduceGroup(new ProductTransactionsReducer());
 
         // Map product identifier (String) to an id (int) for better performance
         // Note: setParallelism(1) is necessary due to incremental product id!

@@ -57,17 +57,15 @@ class TransactionReducer extends RichGroupReduceFunction<Tuple2<String, String>,
 
         Tuple2<String, String> tuple = tuples.next();
         String tid = tuple.f0;
-        int itemId = ++id;
 
         SortedSet<Integer> set = new TreeSet<>();
-        set.add(itemId);
-        idItemMap.put(itemId, tuple.f1);
+        set.add(++id);
+        idItemMap.put(id, tuple.f1);
 
         while (tuples.hasNext()) {
             tuple = tuples.next();
-            itemId = ++id;
-            set.add(itemId);
-            idItemMap.put(itemId, tuple.f1);
+            set.add(++id);
+            idItemMap.put(id, tuple.f1);
         }
 
         out.collect(new Tuple2<>(tid, set));

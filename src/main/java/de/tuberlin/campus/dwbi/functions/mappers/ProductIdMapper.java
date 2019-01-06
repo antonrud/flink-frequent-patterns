@@ -16,12 +16,10 @@ public class ProductIdMapper extends RichMapFunction<Tuple2<String, SortedSet<St
     @Override
     public Tuple2<Integer, SortedSet<String>> map(Tuple2<String, SortedSet<String>> tuple) throws Exception {
 
-        int itemId = ++id;
-
         // Save assigned item id
-        idItemMap.put(itemId, tuple.f0);
+        idItemMap.put(++id, tuple.f0);
 
-        return new Tuple2<>(itemId, tuple.f1);
+        return new Tuple2<>(id, tuple.f1);
     }
 
     @Override

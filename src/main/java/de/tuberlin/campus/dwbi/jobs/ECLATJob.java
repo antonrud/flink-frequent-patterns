@@ -6,21 +6,27 @@ import de.tuberlin.campus.dwbi.functions.filters.SizeFilter;
 import de.tuberlin.campus.dwbi.functions.filters.SupportFilter;
 import de.tuberlin.campus.dwbi.functions.keyselectors.ItemSetKeySelector;
 import de.tuberlin.campus.dwbi.functions.mappers.ProductIdMapper;
+import de.tuberlin.campus.dwbi.functions.mappers.CountSupportMapper;
 import de.tuberlin.campus.dwbi.functions.reducers.TransactionsProductsReducer;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 
 import java.util.SortedSet;
 
 public class ECLATJob {
 
-    //private final static String CSV_FILE = "./src/main/resources/online_retail.csv";
-    //private final static double MIN_SUPPORT = 100;
-    private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
-    private final static int MIN_SUPPORT = 2;
+    private final static String CSV_FILE = "./src/main/resources/online_retail.csv";
+    //private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
 
     public static void main(String[] args) throws Exception {
+        long startTime = System.currentTimeMillis();
+
+        //final int MIN_SUPPORT = (int) (Files.lines(Paths.get(CSV_FILE)).count() * 0.001);
+        final int MIN_SUPPORT = 200;
+
+        System.out.println("Starting execution with MIN_SUPPORT: " + MIN_SUPPORT);
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
         env.setParallelism(1);
@@ -40,8 +46,9 @@ public class ECLATJob {
         // Note: setParallelism(1) is necessary due to incremental product id!
         DataSet<Tuple2<Integer, SortedSet<String>>> idsTransactions = productsTransactions
                 .map(new ProductIdMapper())
-                .setParallelism(1);
-        
+                .setParallelism(1)
+                .filter(new SupportFilter<>(MIN_SUPPORT));
+
         DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> pairs = idsTransactions
                 .cross(idsTransactions)
                 .with(new PairsCross())
@@ -49,15 +56,15 @@ public class ECLATJob {
                 .distinct(new ItemSetKeySelector())
                 .filter(new SupportFilter<>(MIN_SUPPORT));
 
-        DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> triples = pairs
+        DataSet<Tuple3<SortedSet<Integer>, Integer, SortedSet<String>>> triples = pairs
                 .cross(pairs)
                 .with(new TriplesCross())
                 .filter(new SizeFilter(3))
                 .distinct(new ItemSetKeySelector())
-                .filter(new SupportFilter<>(MIN_SUPPORT));
+                .filter(new SupportFilter<>(MIN_SUPPORT))
+                .map(new CountSupportMapper());
 
-//        idsTransactions.filter(new SupportFilter<>()).print();
-        pairs.print();
+        triples.print();
 
         /* Execute program with sink to file
         itemsQuantity.sortPartition(2, Order.DESCENDING)
@@ -66,5 +73,9 @@ public class ECLATJob {
 
         env.execute("Flink Batch Job");
         */
+
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println("\nTook time: " + (double) totalTime / 1000 + " s");
     }
 }

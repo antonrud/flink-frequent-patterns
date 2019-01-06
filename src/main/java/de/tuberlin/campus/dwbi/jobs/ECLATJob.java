@@ -29,7 +29,7 @@ public class ECLATJob {
     private final static int MIN_SUPPORT = 400;
 
     // Saves mapping for: Id (int) -> Item (String)
-    public static SortedMap<Integer, String> idItemMap = new TreeMap<>();
+    private static SortedMap<Integer, String> idItemMap;
 
     public static void main(String[] args) throws Exception {
 
@@ -106,6 +106,11 @@ public class ECLATJob {
         System.out.println("  RESULT: " + RESULT_FILE);
         System.out.println("  MAPPING: " + MAPPING_FILE);
         System.out.println("\n  MIN_SUPPORT: " + MIN_SUPPORT);
+    }
+
+    public static void setMapping(SortedMap<Integer, String> map) {
+
+        idItemMap = map;
     }
 
     private static void saveMapping() throws IOException {

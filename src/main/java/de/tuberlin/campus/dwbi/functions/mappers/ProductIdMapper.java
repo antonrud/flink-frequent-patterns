@@ -1,13 +1,16 @@
 package de.tuberlin.campus.dwbi.functions.mappers;
 
 import de.tuberlin.campus.dwbi.jobs.ECLATJob;
-import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 
-public class ProductIdMapper implements MapFunction<Tuple2<String, SortedSet<String>>, Tuple2<Integer, SortedSet<String>>> {
+public class ProductIdMapper extends RichMapFunction<Tuple2<String, SortedSet<String>>, Tuple2<Integer, SortedSet<String>>> {
 
+    private SortedMap<Integer, String> idItemMap = new TreeMap<>();
     private int id = 0;
 
     @Override
@@ -16,8 +19,16 @@ public class ProductIdMapper implements MapFunction<Tuple2<String, SortedSet<Str
         int itemId = ++id;
 
         // Save assigned item id
-        ECLATJob.idItemMap.put(itemId, tuple.f0);
+        idItemMap.put(itemId, tuple.f0);
 
         return new Tuple2<>(itemId, tuple.f1);
+    }
+
+    @Override
+    public void close() throws Exception {
+
+        ECLATJob.setMapping(idItemMap);
+
+        super.close();
     }
 }

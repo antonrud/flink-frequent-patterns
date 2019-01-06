@@ -1,9 +1,6 @@
 package de.tuberlin.campus.dwbi.jobs;
 
-import de.tuberlin.campus.dwbi.functions.IntersectionMapper;
-import de.tuberlin.campus.dwbi.functions.ProductIdMapper;
-import de.tuberlin.campus.dwbi.functions.SupportFilter;
-import de.tuberlin.campus.dwbi.functions.TransactionsProductsReducer;
+import de.tuberlin.campus.dwbi.functions.*;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -15,11 +12,12 @@ public class ECLATJob {
     //private final static String CSV_FILE = "./src/main/resources/online_retail.csv";
     //private final static double MIN_SUPPORT = 100;
     private final static String CSV_FILE = "./src/main/resources/OnlineRetail_short.csv";
-    public final static double MIN_SUPPORT = 1;
+    private final static int MIN_SUPPORT = 2;
 
     public static void main(String[] args) throws Exception {
 
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(1);
 
         // Extract 'InvoiceNo' and 'StockCode' from CSV data
         // and map it to: <(String) StockCode -> (SortedSet) [InvoiceNo, InvoiceNo, ...]>
@@ -38,16 +36,23 @@ public class ECLATJob {
                 .map(new ProductIdMapper())
                 .setParallelism(1);
 
-        DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> lol = idsTransactions
-                .flatMap(new IntersectionMapper())
-                .withBroadcastSet(idsTransactions, "transactions")
-                .setParallelism(1);
+        //
+        DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> pairs = idsTransactions
+                .cross(idsTransactions)
+                .with(new PairsCross())
+                .filter(new SizeFilter(2))
+                .distinct(new ItemSetKeySelector())
+                .filter(new SupportFilter<>(MIN_SUPPORT));
 
+        DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> triples = pairs
+                .cross(pairs)
+                .with(new TriplesCross())
+                .filter(new SizeFilter(3))
+                .distinct(new ItemSetKeySelector())
+                .filter(new SupportFilter<>(MIN_SUPPORT));
 
-        idsTransactions.filter(new SupportFilter<>()).print();
-        System.out.println();
-        lol.filter(new SupportFilter<>()).print();
-
+//        idsTransactions.filter(new SupportFilter<>()).print();
+        pairs.print();
 
         /* Execute program with sink to file
         itemsQuantity.sortPartition(2, Order.DESCENDING)

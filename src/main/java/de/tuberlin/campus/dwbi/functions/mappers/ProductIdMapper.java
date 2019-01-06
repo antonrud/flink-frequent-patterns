@@ -1,4 +1,4 @@
-package de.tuberlin.campus.dwbi.functions;
+package de.tuberlin.campus.dwbi.functions.mappers;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;

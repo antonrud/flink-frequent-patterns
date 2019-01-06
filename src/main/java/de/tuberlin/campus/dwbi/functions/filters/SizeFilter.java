@@ -1,4 +1,4 @@
-package de.tuberlin.campus.dwbi.functions;
+package de.tuberlin.campus.dwbi.functions.filters;
 
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.java.tuple.Tuple2;

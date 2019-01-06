@@ -1,4 +1,4 @@
-package de.tuberlin.campus.dwbi.functions;
+package de.tuberlin.campus.dwbi.functions.keyselectors;
 
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;

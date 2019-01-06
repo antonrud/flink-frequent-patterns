@@ -1,6 +1,12 @@
 package de.tuberlin.campus.dwbi.jobs;
 
-import de.tuberlin.campus.dwbi.functions.*;
+import de.tuberlin.campus.dwbi.functions.crosses.PairsCross;
+import de.tuberlin.campus.dwbi.functions.crosses.TriplesCross;
+import de.tuberlin.campus.dwbi.functions.filters.SizeFilter;
+import de.tuberlin.campus.dwbi.functions.filters.SupportFilter;
+import de.tuberlin.campus.dwbi.functions.keyselectors.ItemSetKeySelector;
+import de.tuberlin.campus.dwbi.functions.mappers.ProductIdMapper;
+import de.tuberlin.campus.dwbi.functions.reducers.TransactionsProductsReducer;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -35,8 +41,7 @@ public class ECLATJob {
         DataSet<Tuple2<Integer, SortedSet<String>>> idsTransactions = productsTransactions
                 .map(new ProductIdMapper())
                 .setParallelism(1);
-
-        //
+        
         DataSet<Tuple2<SortedSet<Integer>, SortedSet<String>>> pairs = idsTransactions
                 .cross(idsTransactions)
                 .with(new PairsCross())

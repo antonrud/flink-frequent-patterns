@@ -1,4 +1,4 @@
-package de.tuberlin.campus.dwbi.functions;
+package de.tuberlin.campus.dwbi.functions.crosses;
 
 import org.apache.flink.api.common.functions.CrossFunction;
 import org.apache.flink.api.java.tuple.Tuple2;

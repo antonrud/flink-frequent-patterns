@@ -1,4 +1,4 @@
-package de.tuberlin.campus.dwbi.functions;
+package de.tuberlin.campus.dwbi.functions.reducers;
 
 import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple2;

@@ -13,7 +13,7 @@ The tasks are performed within **Apache Flink** execution environment as batch j
 
 ## How to use
 
-1. Download data set from here: https://tubcloud.tu-berlin.de/s/ZtfgnxMCZ5cjJf8
+1. Download data set from here: https://tubcloud.tu-berlin.de/s/ZtfgnxMCZ5cjJf8 (or [mirror](https://drive.google.com/open?id=1rP-4FUSdWGVqLOKbr_8O24NsDm2OONgW))
 2. Place it under **src/main/resources**
 3. Run *main()* method in **ECLATJob** class
 4. Find results in **src/main/resources**
